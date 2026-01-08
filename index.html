@@ -229,7 +229,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>Voice-Activated Counter</h1>
+        <h1>Voice-Activated Counter</h1><input
+  type="text"
+  id="targetWord"
+  placeholder="Yahan likho kya bolna hai (jaise: go)"
+  style="padding:10px;width:100%;margin:15px 0;font-size:16px;text-align:center;"
+>
         <p class="subtitle">Speak to increase the count - Professional voice recognition tool</p>
         
         <div class="counter-display" id="counter">0</div>
@@ -308,20 +313,32 @@
                 stopBtn.disabled = false;
             };
             
-recognition.interimResults = true;
+recognition.interimResults = false;
+
+let lastTime = 0;
 
 recognition.onresult = function (event) {
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal || event.results[i][0].confidence > 0) {
-            count++;
-            counterDisplay.textContent = count;
+  const result = event.results[event.resultIndex];
+  if (!result.isFinal) return;
 
-            counterDisplay.classList.add('active');
-            setTimeout(() => {
-                counterDisplay.classList.remove('active');
-            }, 150);
-        }
-    }
+  const spokenText = result[0].transcript.trim().toLowerCase();
+  const target = document
+    .getElementById("targetWord")
+    .value
+    .trim()
+    .toLowerCase();
+
+  // agar user ne word nahi likha
+  if (target === "") return;
+
+  const now = Date.now();
+  if (now - lastTime < 800) return;
+
+  if (spokenText === target) {
+    count++;
+    counterDisplay.textContent = count;
+    lastTime = now;
+  }
 };
           
             
